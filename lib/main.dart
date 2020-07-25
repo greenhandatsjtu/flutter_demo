@@ -3,8 +3,8 @@ import 'package:first_flutter_app/layout.dart';
 import 'package:first_flutter_app/random_words.dart';
 import 'package:first_flutter_app/tooltip.dart';
 import 'package:first_flutter_app/widget.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 import 'cupertino.dart';
 import 'form.dart';
@@ -47,7 +47,7 @@ class MyApp extends StatelessWidget {
             ),
         "form_page": (context) => FormTestRoute(),
         "layout_page": (context) => LayoutRoute(),
-        "container_page":(context)=>ContainerRoute(),
+        "container_page": (context) => ContainerPage(),
       },
     );
   }
@@ -71,9 +71,13 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage>
+    with SingleTickerProviderStateMixin {
   int _counter = 0;
-  String hitokoto="";
+  String hitokoto = "";
+  int _selectedIndex = 0;
+  TabController _tabController;
+  List tabs = ["Home", "Business", "School"];
 
   void _incrementCounter() {
     setState(() {
@@ -122,7 +126,14 @@ class _MyHomePageState extends State<MyHomePage> {
             );
           },
         ),
-        actions: <Widget>[FlutterLogo()],
+        actions: <Widget>[
+          IconButton(
+              icon: Icon(Icons.share, color: Colors.white), onPressed: () {})
+        ],
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: tabs.map((e) => Tab(text: e)).toList(),
+        ),
       ),
       drawer: Drawer(
         child: Container(
@@ -150,110 +161,146 @@ class _MyHomePageState extends State<MyHomePage> {
                   leading: Icon(Icons.view_module),
                   title: Text("布局类Widget"),
                   subtitle: Text("Row, Column, Flex, Wrap, Align"),
-                  onTap: () => Navigator.of(context).pushNamed("layout_page"),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pushNamed("layout_page");
+                  },
                 ),
                 ListTile(
                   leading: Icon(Icons.tablet),
                   title: Text("容器类Widget"),
                   subtitle: Text(
                       "Padding, ConstrainedBox, DecorateBox, Container, Scaffold, Clip"),
-                  onTap: () => Navigator.of(context).pushNamed("container_page"),
-                )
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pushNamed("container_page");
+                  },
+                ),
               ],
             )),
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(hitokoto,
-                style: TextStyle(
-                  decoration: TextDecoration.underline,
-                  fontSize: 20,
-                  color: Colors.indigo,
-                )),
-            Text(
-              'You have pushed the button this many times:',
+      body: TabBarView(
+        controller: _tabController,
+        children: <Widget>[
+          Center(
+            // Center is a layout widget. It takes a single child and positions it
+            // in the middle of the parent.
+            child: Column(
+              // Column is also a layout widget. It takes a list of children and
+              // arranges them vertically. By default, it sizes itself to fit its
+              // children horizontally, and tries to be as tall as its parent.
+              //
+              // Invoke "debug painting" (press "p" in the console, choose the
+              // "Toggle Debug Paint" action from the Flutter Inspector in Android
+              // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
+              // to see the wireframe for each widget.
+              //
+              // Column has various properties to control how it sizes itself and
+              // how it positions its children. Here we use mainAxisAlignment to
+              // center the children vertically; the main axis here is the vertical
+              // axis because Columns are vertical (the cross axis would be
+              // horizontal).
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text(hitokoto,
+                    style: TextStyle(
+                      decoration: TextDecoration.underline,
+                      fontSize: 20,
+                      color: Colors.indigo,
+                    )),
+                Text(
+                  'You have pushed the button this many times:',
+                ),
+                Text(
+                  '$_counter',
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .headline4,
+                ),
+                IconButton(
+                  icon: Icon(Icons.open_in_new),
+                  tooltip: "Open new route",
+                  color: Colors.blue,
+                  iconSize: 40,
+                  onPressed: () {
+                    Navigator.of(context).pushNamed("new_page");
+                  },
+                ),
+                RaisedButton.icon(
+                  colorBrightness: Brightness.dark,
+                  color: Colors.cyan,
+                  icon: Icon(Icons.open_in_new),
+                  label: Text('open tooltip page'),
+                  onPressed: () async {
+                    var result = await Navigator.of(context).pushNamed(
+                        "tooltip_page",
+                        arguments: "I'm tooltip, hello.");
+                    print(result);
+                  },
+                ),
+                FlatButton(
+                  textColor: CupertinoColors.activeGreen,
+                  child: Text('open Cupertino page'),
+                  onPressed: () =>
+                  {
+                    Navigator.of(context)
+                        .push(CupertinoPageRoute(builder: (context) {
+                      return CupertinoTestRoute();
+                    }))
+                  },
+                ),
+                RandomWordsWidget(),
+                SnackButton(),
+                FlatButton(
+                  child: Text('get hitokoto'),
+                  textColor: Colors.pink,
+                  onPressed: updateHitokoto,
+                ),
+                RaisedButton(
+                  color: Colors.teal,
+                  colorBrightness: Brightness.dark,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15)),
+                  child: Text("input page"),
+                  onPressed: () =>
+                      Navigator.of(context)
+                          .push(MaterialPageRoute(builder: (context) {
+                        return InputRoute();
+                      })),
+                ),
+                RaisedButton(
+                  color: Colors.green[600],
+                  textColor: Colors.grey[300],
+                  child: Text("form page"),
+                  onPressed: () => Navigator.of(context).pushNamed('form_page'),
+                )
+              ],
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-            IconButton(
-              icon: Icon(Icons.open_in_new),
-              tooltip: "Open new route",
-              color: Colors.blue,
-              iconSize: 40,
-              onPressed: () {
-                Navigator.of(context).pushNamed("new_page");
-              },
-            ),
-            RaisedButton.icon(
-              colorBrightness: Brightness.dark,
-              color: Colors.cyan,
-              icon: Icon(Icons.open_in_new),
-              label: Text('open tooltip page'),
-              onPressed: () async {
-                var result = await Navigator.of(context).pushNamed(
-                    "tooltip_page",
-                    arguments: "I'm tooltip, hello.");
-                print(result);
-              },
-            ),
-            FlatButton(
-              textColor: CupertinoColors.activeGreen,
-              child: Text('open Cupertino page'),
-              onPressed: () => {
-                Navigator.of(context)
-                    .push(CupertinoPageRoute(builder: (context) {
-                  return CupertinoTestRoute();
-                }))
-              },
-            ),
-            RandomWordsWidget(),
-            SnackButton(),
-            FlatButton(
-              child: Text('get hitokoto'),
-              textColor: Colors.pink,
-              onPressed: updateHitokoto,
-            ),
-            RaisedButton(
-              color: Colors.teal,
-              colorBrightness: Brightness.dark,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15)),
-              child: Text("input page"),
-              onPressed: () => Navigator.of(context)
-                  .push(MaterialPageRoute(builder: (context) {
-                return InputRoute();
-              })),
-            ),
-            RaisedButton(
-              color: Colors.green[600],
-              textColor: Colors.grey[300],
-              child: Text("form page"),
-              onPressed: () => Navigator.of(context).pushNamed('form_page'),
-            )
-          ],
-        ),
+          ),
+          Container(
+            alignment: Alignment.center,
+            child: Text(tabs[1], textScaleFactor: 5),
+          ),
+          Container(
+            alignment: Alignment.center,
+            child: Text(tabs[2], textScaleFactor: 5),
+          )
+        ],
       ),
-
+      bottomNavigationBar: BottomNavigationBar(
+        items: <BottomNavigationBarItem>[
+          BottomNavigationBarItem(icon: Icon(Icons.home), title: Text("Home")),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.business), title: Text("Business")),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.school), title: Text("School")),
+        ],
+        currentIndex: _selectedIndex,
+        fixedColor: Colors.cyan,
+        onTap: _onItemTapped,
+        type: BottomNavigationBarType.fixed,
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: _incrementCounter,
         tooltip: 'Increment',
@@ -266,8 +313,13 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     updateHitokoto();
-    setState(() {
+    _tabController = TabController(length: tabs.length, vsync: this);
+    setState(() {});
+  }
 
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
     });
   }
 }
