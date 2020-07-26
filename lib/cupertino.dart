@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class CupertinoTestRoute extends StatelessWidget {
   @override
@@ -37,14 +37,18 @@ class SnackButton extends StatelessWidget {
   }
 }
 
-Future getHitokoto() async {
+Future<String> getHitokoto() async {
+  String hitokoto = "";
   try {
-    final response = await Dio().get("https://v1.hitokoto.cn/",
-        queryParameters: {'c': 'a', 'encode': 'json'});
-    String hitokoto = jsonDecode(response.toString())['hitokoto'];
+    final response = await Future.delayed(Duration(seconds: 1)).then((e) =>
+        Dio().get("https://v1.hitokoto.cn/",
+            queryParameters: {'c': 'a', 'encode': 'json'}));
+    hitokoto = jsonDecode(response.toString())['hitokoto'];
     print(hitokoto);
     return hitokoto;
   } catch (e) {
     print(e);
+    hitokoto = e;
   }
+  return hitokoto;
 }

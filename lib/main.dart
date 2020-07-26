@@ -1,6 +1,7 @@
 import 'package:first_flutter_app/container.dart';
 import 'package:first_flutter_app/layout.dart';
 import 'package:first_flutter_app/random_words.dart';
+import 'package:first_flutter_app/scroll.dart';
 import 'package:first_flutter_app/tooltip.dart';
 import 'package:first_flutter_app/widget.dart';
 import 'package:flutter/cupertino.dart';
@@ -48,6 +49,7 @@ class MyApp extends StatelessWidget {
         "form_page": (context) => FormTestRoute(),
         "layout_page": (context) => LayoutRoute(),
         "container_page": (context) => ContainerPage(),
+        "scroll_page": (context) => ScrollPage(),
       },
     );
   }
@@ -88,14 +90,6 @@ class _MyHomePageState extends State<MyHomePage>
       // called again, and so nothing would appear to happen.
       _counter++;
     });
-  }
-
-  void updateHitokoto() {
-    getHitokoto().then((value) => {
-          setState(() {
-            hitokoto = value;
-          })
-        });
   }
 
   @override
@@ -176,6 +170,16 @@ class _MyHomePageState extends State<MyHomePage>
                     Navigator.of(context).pushNamed("container_page");
                   },
                 ),
+                ListTile(
+                  leading: Icon(Icons.format_line_spacing),
+                  title: Text("可滚动Widget"),
+                  subtitle: Text(
+                      "SingleChildScrollView, ListView, GridView, CustomScrollView, ScrollController"),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pushNamed("scroll_page");
+                  },
+                ),
               ],
             )),
       ),
@@ -202,12 +206,24 @@ class _MyHomePageState extends State<MyHomePage>
               // horizontal).
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Text(hitokoto,
-                    style: TextStyle(
-                      decoration: TextDecoration.underline,
-                      fontSize: 20,
-                      color: Colors.indigo,
-                    )),
+                FutureBuilder<String>(
+                  future: getHitokoto(),
+                  builder: (BuildContext context, AsyncSnapshot snapshot) {
+                    if (snapshot.connectionState == ConnectionState.done) {
+                      return Text(snapshot.data,
+                          style: TextStyle(
+                            decoration: TextDecoration.underline,
+                            fontSize: 20,
+                            color: Colors.indigo,
+                          ));
+                    } else {
+                      return SizedBox(
+                          height: 29,
+                          width: 29,
+                          child: CircularProgressIndicator());
+                    }
+                  },
+                ),
                 Text(
                   'You have pushed the button this many times:',
                 ),
@@ -252,11 +268,6 @@ class _MyHomePageState extends State<MyHomePage>
                 ),
                 RandomWordsWidget(),
                 SnackButton(),
-                FlatButton(
-                  child: Text('get hitokoto'),
-                  textColor: Colors.pink,
-                  onPressed: updateHitokoto,
-                ),
                 RaisedButton(
                   color: Colors.teal,
                   colorBrightness: Brightness.dark,
@@ -312,7 +323,6 @@ class _MyHomePageState extends State<MyHomePage>
   @override
   void initState() {
     super.initState();
-    updateHitokoto();
     _tabController = TabController(length: tabs.length, vsync: this);
     setState(() {});
   }
