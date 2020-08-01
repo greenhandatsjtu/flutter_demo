@@ -1,4 +1,5 @@
 import 'package:first_flutter_app/container.dart';
+import 'package:first_flutter_app/functional.dart';
 import 'package:first_flutter_app/layout.dart';
 import 'package:first_flutter_app/random_words.dart';
 import 'package:first_flutter_app/scroll.dart';
@@ -50,6 +51,7 @@ class MyApp extends StatelessWidget {
         "layout_page": (context) => LayoutRoute(),
         "container_page": (context) => ContainerPage(),
         "scroll_page": (context) => ScrollPage(),
+        "functional_page": (context) => FunctionalPage(),
       },
     );
   }
@@ -178,6 +180,16 @@ class _MyHomePageState extends State<MyHomePage>
                   onTap: () {
                     Navigator.of(context).pop();
                     Navigator.of(context).pushNamed("scroll_page");
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.settings),
+                  title: Text("功能型Widget"),
+                  subtitle: Text(
+                      "WillPopScope, InheritedWidget, Provider, FutureBuilder, StreamBuilder, Dialog"),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pushNamed("functional_page");
                   },
                 ),
               ],
